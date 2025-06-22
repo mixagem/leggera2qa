@@ -1,0 +1,33 @@
+{
+	"id": "4a4af1ff-117e-4988-bd79-f1ff5f154ce8",
+	"name": "Leggera 2 Staging",
+	"values": [
+		{
+			"key": "URL",
+			"value": "http://localhost/leggera2api",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "username",
+			"value": "mix",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "password",
+			"value": "1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "cookie",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-06-20T17:33:46.179Z",
+	"_postman_exported_using": "Postman/11.40.1"
+}

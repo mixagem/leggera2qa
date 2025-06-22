@@ -1,0 +1,320 @@
+{
+	"info": {
+		"_postman_id": "a8978676-5d6c-4b60-a1f1-04dd1783f46c",
+		"name": "Leggera 2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19101047"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Login successful', function () {\r",
+									"    return rsp.sucess\r",
+									"});\r",
+									"\r",
+									"if (!rsp.sucess) {\r",
+									"    pm.test.skip('Skipping test given no UserSettings was received');\r",
+									"} else {\r",
+									"    pm.test('UserSettings object is valid', function () {\r",
+									"        let expectedProperties = ['name', 'username', 'language', 'version', 'theme', 'monacoTheme', 'email', 'profilepic', 'cookie', 'features', 'breadcumbs'];\r",
+									"\r",
+									"        expectedProperties.forEach(prop => {\r",
+									"            pm.test(`UserSettings object has property: ${prop}`, function () {\r",
+									"                pm.expect(rsp.userSettings).to.have.property(prop);\r",
+									"\r",
+									"                if(prop === 'cookie'){\r",
+									"                    pm.environment.set(\"cookie\", rsp.userSettings.cookie);\r",
+									"                }\r",
+									"            });\r",
+									"        });\r",
+									"\r",
+									"        pm.test('UserSettings object has no new properties', function () {\r",
+									"            pm.expect(Object.keys(rsp.userSettings).length === expectedProperties.length)\r",
+									"        });\r",
+									"\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/login.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Elements",
+			"item": [
+				{
+					"name": "Get elements",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Get list query\" , function () {\r",
+									"    return rsp.sucess;\r",
+									"});\r",
+									"\r",
+									"if (!rsp.dataSource.length) {\r",
+									"    pm.test.skip('Skipping test given user has no elements');\r",
+									"} else {\r",
+									"    pm.test('Element object is valid', function () {\r",
+									"        let expectedProperties = ['id', 'name', 'collectionLabel', 'stamp', 'owner', 'lastUsed'];\r",
+									"\r",
+									"        expectedProperties.forEach(prop => {\r",
+									"            pm.test(`Element object has property: ${prop}`, function () {\r",
+									"                pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
+									"            });\r",
+									"        });\r",
+									"\r",
+									"        pm.test('Element object has no new properties', function (){\r",
+									"            pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
+									"        });\r",
+									"\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/elements.php?username={{username}}&cookie={{cookie}}&operation=getlist",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"elements.php"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "{{username}}"
+								},
+								{
+									"key": "cookie",
+									"value": "{{cookie}}"
+								},
+								{
+									"key": "operation",
+									"value": "getlist"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Collections",
+			"item": [
+				{
+					"name": "Get collections",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Get list query\" , function () {\r",
+									"    return rsp.sucess;\r",
+									"});\r",
+									"\r",
+									"if (!rsp.dataSource.length) {\r",
+									"    pm.test.skip('Skipping test given user has no collections');\r",
+									"} else {\r",
+									"    pm.test('Collection object is valid', function () {\r",
+									"        let expectedProperties = ['name', 'application', 'applicationLabel', 'details', 'icon', 'stamp', 'owner', 'lastUsed'];\r",
+									"\r",
+									"        expectedProperties.forEach(prop => {\r",
+									"            pm.test(`Collection object has property: ${prop}`, function () {\r",
+									"                pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
+									"            });\r",
+									"        });\r",
+									"\r",
+									"        pm.test('Collection object has no new properties', function (){\r",
+									"            pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
+									"        });\r",
+									"\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/collections.php?username={{username}}&cookie={{cookie}}&operation=getlist",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"collections.php"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "{{username}}"
+								},
+								{
+									"key": "cookie",
+									"value": "{{cookie}}"
+								},
+								{
+									"key": "operation",
+									"value": "getlist"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Applications",
+			"item": [
+				{
+					"name": "Get applications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Get list query\" , function () {\r",
+									"    return rsp.sucess;\r",
+									"});\r",
+									"\r",
+									"if (!rsp.dataSource.length) {\r",
+									"    pm.test.skip('Skipping test given user has no applications');\r",
+									"} else {\r",
+									"    pm.test('Application object is valid', function () {\r",
+									"        let expectedProperties = ['name', 'details', 'logo', 'stamp', 'owner', 'lastUsed'];\r",
+									"\r",
+									"        expectedProperties.forEach(prop => {\r",
+									"            pm.test(`Application object has property: ${prop}`, function () {\r",
+									"                pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
+									"            });\r",
+									"        });\r",
+									"\r",
+									"        pm.test('Application object has no new properties', function (){\r",
+									"            pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
+									"        });\r",
+									"\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/applications.php?username={{username}}&cookie={{cookie}}&operation=getlist",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"applications.php"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "{{username}}"
+								},
+								{
+									"key": "cookie",
+									"value": "{{cookie}}"
+								},
+								{
+									"key": "operation",
+									"value": "getlist"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
