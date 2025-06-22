@@ -1,0 +1,186 @@
+/* groovylint-disable-next-line CompileStatic */
+pipeline {
+    agent any
+
+    environment {
+        FRONTEND_PROJECT_PATH = 'D:\\web dev\\leggera2remaster\\leggera'
+        FRONTEND_DEPLOY_PATH = 'D:\\webdev_staging\\leggera2'
+
+        BACKEND_PROJECT_PATH = 'D:\\web dev\\leggera2remaster\\api'
+        FRONTEND_DEPLOY_PATH = 'D:\\webdev_staging\\leggera2api'
+
+        TESTING_PROJECT_PATH = 'D:\\web dev\\leggera2qa'
+    }
+
+    stages {
+        stage('Front-end Deploy') {
+            steps {
+                script {
+                    bat """
+                        cd /d "${FRONTEND_PROJECT_PATH}"
+                        npm install && npx ng build --configuration development
+                    """
+                }
+
+                script {
+                    // rm rf is scary af, better wrapp this shit just in case 😂😂
+                    if (env.FRONTEND_DEPLOY_PATH != '' && env.FRONTEND_DEPLOY_PATH.contains('leggera2')) {
+                        bat """
+                        if exist "${FRONTEND_DEPLOY_PATH}" (
+                          rmdir /s /q "${FRONTEND_DEPLOY_PATH}"
+                        )
+                        mkdir "${FRONTEND_DEPLOY_PATH}"
+                        xcopy /E /I /H /Y "${FRONTEND_PROJECT_PATH}\\dist\\leggera\\browser" "${FRONTEND_DEPLOY_PATH}"
+                    """
+                    }
+                }
+            }
+        }
+
+        stage('Back-end Deploy') {
+            steps {
+                script {
+                    // rm rf is scary af, better wrapp this shit just in case 😂😂
+                    if (env.BACKEND_DEPLOY_PATH != '' && env.BACKEND_DEPLOY_PATH.contains('leggera2api')) {
+                        bat """
+                            if exist "${BACKEND_DEPLOY_PATH}" (
+                              rmdir /s /q "${BACKEND_DEPLOY_PATH}"
+                            )
+                            mkdir "${BACKEND_DEPLOY_PATH}"
+                            xcopy /E /I /H /Y "${BACKEND_PROJECT_PATH}" "${BACKEND_DEPLOY_PATH}"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploying Database') {
+            steps {
+                script {
+                    bat """
+                        @echo off
+                        setlocal
+
+                        :: Set MySQL credentials and paths
+                        set MYSQL_USER=root
+                        set MYSQL_PASSWORD=
+                        set DATABASE=leggera2staging
+                        set BACKUP_FILE=D:\\web dev\\leggera2qa\\sql\\demo.sql
+
+                        :: Check if the database exists
+                        echo Checking if the database %DATABASE% exists...
+                        mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% -e "SHOW DATABASES LIKE '%DATABASE%';" > nul 2>&1
+
+                        if %errorlevel% == 0 (
+                            echo Database %DATABASE% exists. Deleting it...
+                            mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% -e "DROP DATABASE %DATABASE%;"
+                        ) else (
+                            echo Database %DATABASE% does not exist.
+                        )
+
+                        :: Create the database
+                        echo Creating the database %DATABASE%...
+                        mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% -e "CREATE DATABASE %DATABASE%;"
+
+                        :: Restore the backup
+                        echo Restoring the backup into %DATABASE%...
+                        mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% %DATABASE% < %BACKUP_FILE%
+
+                        echo Database restoration complete.
+
+                        endlocal
+                    """
+                }
+            }
+        }
+
+        stage('Installing dependencies') {
+            steps {
+                script {
+                    bat """
+                        cd /d "${TESTING_PROJECT_PATH}"
+                        npm install
+                    """
+                }
+            }
+        }
+
+        stage('Playwright testing') {
+            steps {
+                script {
+                    bat """
+                        cd /d "${TESTING_PROJECT_PATH}"
+                        npx playwright test
+                    """
+                }
+
+                publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "${TESTING_PROJECT_PATH}\\playwright\\report",
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright Test Report'
+                ])
+            }
+        }
+
+        stage('Newman testing') {
+            steps {
+                script {
+                    bat """
+                        cd /d "${TESTING_PROJECT_PATH}"
+                        npx newman run \"${TESTING_PROJECT_PATH}\\postman\\collection.json\" -e \"${TESTING_PROJECT_PATH}\\postman\\environment.json\" --reporters cli,htmlextra,json --reporter-htmlextra-export newman-report/newman-report.html --reporter-json-export newman-report/newman-report.json
+                    """
+                }
+
+                publishHTML(target:[
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "${TESTING_PROJECT_PATH}\\newman",  // Directory where the report is located (should be the same directory where Jenkins runs)
+                    reportFiles: 'newman-report.html',  // Report filename
+                    reportName: 'Newman Test Report'
+                ])
+
+                script {
+                    /* groovylint-disable-next-line NoDef, VariableTypeRequired */
+                    def results = readJSON text: readFile("${TESTING_PROJECT_PATH}\\newman-report\\newman-report.json")
+                    currentBuild.result = results.run.stats.tests.failed > 0 ? 'FAILURE' : 'SUCCESS'
+                }
+            }
+        }
+
+        stage('Back-end k6 testing') {
+            steps {
+                script {
+                    bat """
+                        cd /d "${TESTING_PROJECT_PATH}"
+                        k6 run --out json=./k6/report/results.json ./k6/tests/basic.k6.spec.js
+                    """
+                }
+
+                publishHTML(target:[
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "${TESTING_PROJECT_PATH}\\k6\\report",  // Directory where the report is located (should be the same directory where Jenkins runs)
+                    reportFiles: 'k6-report.html',  // Report filename
+                    reportName: 'K6 Test Report'
+                ])
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+        }
+        success {
+            echo 'Build and tests completed successfully!'
+        }
+        failure {
+            echo 'Build or tests failed!'
+        }
+    }
+}
