@@ -3,7 +3,7 @@
 node_modules/
 test-results/
 playwright-report/
-newman-report/
+newman/
 blob-report/
 playwright/.cache/
 k6/report/
