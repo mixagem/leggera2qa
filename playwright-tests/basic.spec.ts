@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page, type TestInfo } from '@playwright/test';
-import { secrets } from '../../playwright.config';
+import { secrets } from '../playwright.config';
 
 test.describe('Leggera 2 Tests', () => {
   const timestamp: string = new Date().toISOString().replace(/T/, '_').replace(/:/g, '').slice(0, 15).replace(/-/g, ''); // YYYYDDMM_HHMM 
