@@ -10,6 +10,167 @@
 			"name": "Login",
 			"item": [
 				{
+					"name": "Login failure - no pw",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Login failed on purpose - No password (400)', function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - No password (400)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('password');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/login.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login failure - no user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Login failed on purpose - No user (400)', function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - No user (400)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('username');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/login.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login failure - wrong credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Login failed on purpose - Wrong credentials (401)', function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - Wrong credentials (401)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('credentials');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "xxxxx",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "xxxxx",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/login.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Login",
 					"event": [
 						{
@@ -19,31 +180,24 @@
 									"const rsp = pm.response.json();\r",
 									"\r",
 									"pm.test('Login successful', function () {\r",
-									"    return rsp.sucess\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"if (!rsp.sucess) {\r",
-									"    pm.test.skip('Skipping test given no UserSettings was received');\r",
-									"} else {\r",
-									"    pm.test('UserSettings object is valid', function () {\r",
-									"        let expectedProperties = ['name', 'username', 'language', 'version', 'theme', 'monacoTheme', 'email', 'profilepic', 'cookie', 'features', 'breadcumbs'];\r",
+									"let expectedProperties = ['name', 'username', 'language', 'version', 'theme', 'monacoTheme', 'email', 'profilepic', 'cookie', 'features', 'breadcumbs'];\r",
 									"\r",
-									"        expectedProperties.forEach(prop => {\r",
-									"            pm.test(`UserSettings object has property: ${prop}`, function () {\r",
-									"                pm.expect(rsp.userSettings).to.have.property(prop);\r",
+									"expectedProperties.forEach(prop => {\r",
+									"    pm.test(`UserSettings object has property: ${prop}`, function () {\r",
+									"        pm.expect(rsp.userSettings).to.have.property(prop);\r",
 									"\r",
-									"                if(prop === 'cookie'){\r",
-									"                    pm.environment.set(\"cookie\", rsp.userSettings.cookie);\r",
-									"                }\r",
-									"            });\r",
-									"        });\r",
-									"\r",
-									"        pm.test('UserSettings object has no new properties', function () {\r",
-									"            pm.expect(Object.keys(rsp.userSettings).length === expectedProperties.length)\r",
-									"        });\r",
-									"\r",
+									"        if(prop === 'cookie'){\r",
+									"            pm.environment.set(\"cookie\", rsp.userSettings.cookie);\r",
+									"        }\r",
 									"    });\r",
-									"}"
+									"});\r",
+									"\r",
+									"pm.test('UserSettings object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp.userSettings).length === expectedProperties.length)\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -101,20 +255,18 @@
 									"if (!rsp.dataSource.length) {\r",
 									"    pm.test.skip('Skipping test given user has no elements');\r",
 									"} else {\r",
-									"    pm.test('Element object is valid', function () {\r",
-									"        let expectedProperties = ['id', 'name', 'collectionLabel', 'stamp', 'owner', 'lastUsed'];\r",
+									"    let expectedProperties = ['id', 'name', 'collectionLabel', 'stamp', 'owner', 'lastUsed'];\r",
 									"\r",
-									"        expectedProperties.forEach(prop => {\r",
-									"            pm.test(`Element object has property: ${prop}`, function () {\r",
-									"                pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
-									"            });\r",
+									"    expectedProperties.forEach(prop => {\r",
+									"        pm.test(`Element object has property: ${prop}`, function () {\r",
+									"            pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
 									"        });\r",
-									"\r",
-									"        pm.test('Element object has no new properties', function (){\r",
-									"            pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
-									"        });\r",
-									"\r",
 									"    });\r",
+									"\r",
+									"    pm.test('Element object has no new properties', function (){\r",
+									"        pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
+									"    });\r",
+									"\r",
 									"}"
 								],
 								"type": "text/javascript",
@@ -179,19 +331,16 @@
 									"if (!rsp.dataSource.length) {\r",
 									"    pm.test.skip('Skipping test given user has no collections');\r",
 									"} else {\r",
-									"    pm.test('Collection object is valid', function () {\r",
-									"        let expectedProperties = ['name', 'application', 'applicationLabel', 'details', 'icon', 'stamp', 'owner', 'lastUsed'];\r",
+									"    let expectedProperties = ['name', 'application', 'applicationLabel', 'details', 'icon', 'stamp', 'owner', 'lastUsed'];\r",
 									"\r",
-									"        expectedProperties.forEach(prop => {\r",
-									"            pm.test(`Collection object has property: ${prop}`, function () {\r",
-									"                pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
-									"            });\r",
+									"    expectedProperties.forEach(prop => {\r",
+									"        pm.test(`Collection object has property: ${prop}`, function () {\r",
+									"            pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
 									"        });\r",
+									"    });\r",
 									"\r",
-									"        pm.test('Collection object has no new properties', function (){\r",
-									"            pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
-									"        });\r",
-									"\r",
+									"    pm.test('Collection object has no new properties', function (){\r",
+									"        pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
 									"    });\r",
 									"}"
 								],
@@ -257,19 +406,16 @@
 									"if (!rsp.dataSource.length) {\r",
 									"    pm.test.skip('Skipping test given user has no applications');\r",
 									"} else {\r",
-									"    pm.test('Application object is valid', function () {\r",
-									"        let expectedProperties = ['name', 'details', 'logo', 'stamp', 'owner', 'lastUsed'];\r",
+									"    let expectedProperties = ['name', 'details', 'logo', 'stamp', 'owner', 'lastUsed'];\r",
 									"\r",
-									"        expectedProperties.forEach(prop => {\r",
-									"            pm.test(`Application object has property: ${prop}`, function () {\r",
-									"                pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
-									"            });\r",
+									"    expectedProperties.forEach(prop => {\r",
+									"        pm.test(`Application object has property: ${prop}`, function () {\r",
+									"            pm.expect(rsp.dataSource[0]).to.have.property(prop);\r",
 									"        });\r",
+									"    });\r",
 									"\r",
-									"        pm.test('Application object has no new properties', function (){\r",
-									"            pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
-									"        });\r",
-									"\r",
+									"    pm.test('Application object has no new properties', function (){\r",
+									"        pm.expect(Object.keys(rsp.dataSource).length === expectedProperties.length)\r",
 									"    });\r",
 									"}"
 								],
@@ -309,6 +455,487 @@
 									"key": "operation",
 									"value": "getlist"
 								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Anon",
+			"item": [
+				{
+					"name": "Missing operation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('/anon endpoint failure - no operation (400)', function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - no operation (400)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('operation');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
+							],
+							"query": [
+								{
+									"key": "operation",
+									"value": "availability",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get availability",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Anon availability (200)', function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let rspExpectedProperties = ['record', 'token', 'sucess', 'details'];\r",
+									"rspExpectedProperties.forEach(prop => {\r",
+									"    pm.test(`Response object has property: ${prop}`, function () {\r",
+									"        pm.expect(rsp).to.have.property(prop);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test('Response object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp).length === rspExpectedProperties.length)\r",
+									"});\r",
+									"\r",
+									"let recordExpectedProperties = ['username', 'name', 'owner', 'profilepic', 'theme', 'monacoTheme', 'breadcumbs', 'language', 'created', 'cookie', 'features'];\r",
+									"recordExpectedProperties.forEach(recordProp => {\r",
+									"    pm.test(`Record object has property: ${recordProp}`, function () {\r",
+									"        pm.expect(rsp.record).to.have.property(recordProp);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test('Record object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp.record).length === recordExpectedProperties.length)\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.environment.set(\"cookie\", rsp.record.cookie);\r",
+									"pm.environment.set(\"username\", rsp.record.username);\r",
+									"pm.environment.set(\"anon_token\", rsp.token);\r",
+									"\r",
+									"pm.environment.set(\"anon\", JSON.stringify(rsp.record));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php?operation=availability",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
+							],
+							"query": [
+								{
+									"key": "operation",
+									"value": "availability"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anon create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Anon creation successful', function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let rspExpectedProperties = ['record', 'sucess', 'details'];\r",
+									"rspExpectedProperties.forEach(prop => {\r",
+									"    pm.test(`Anon creation response object has property: ${prop}`, function () {\r",
+									"        pm.expect(rsp).to.have.property(prop);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test('Anon creation response object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp).length === rspExpectedProperties.length)\r",
+									"});\r",
+									"\r",
+									"let anonExpectedProperties = ['profilepic', 'token', 'username', 'name', 'owner', 'theme', 'monacoTheme', 'breadcumbs', 'language', 'created', 'cookie', 'features', 'sessionticks'];\r",
+									"anonExpectedProperties.forEach(anonProp => {\r",
+									"    pm.test(`Anon creation record object has property: ${anonProp}`, function () {\r",
+									"        pm.expect(rsp.record).to.have.property(anonProp);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test('Anon creation record object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp).length === rspExpectedProperties.length)\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "operation",
+									"value": "create",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "{{anon_token}}",
+									"type": "text"
+								},
+								{
+									"key": "anon",
+									"value": "{{anon}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anon login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Anon Login successful', function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"let rspExpectedProperties = ['record', 'sucess', 'details'];\r",
+									"rspExpectedProperties.forEach(prop => {\r",
+									"    pm.test(`Anon login response object has property: ${prop}`, function () {\r",
+									"        pm.expect(rsp).to.have.property(prop);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test('Anon login response object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp).length === rspExpectedProperties.length)\r",
+									"});\r",
+									"\r",
+									"let recordExpectedProperties = ['stamp', 'profilepic', 'token', 'username', 'name', 'owner', 'theme', 'monacoTheme', 'breadcumbs', 'language', 'created', 'cookie', 'features', 'version'];\r",
+									"recordExpectedProperties.forEach(recordProp => {\r",
+									"    pm.test(`Anon login record object has property: ${recordProp}`, function () {\r",
+									"        pm.expect(rsp.record).to.have.property(recordProp);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test('Anon login record object has no new properties', function () {\r",
+									"    pm.expect(Object.keys(rsp).length === rspExpectedProperties.length)\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "operation",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "{{anon_token}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anon login failure - no token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Anon login failure - no token (400)', function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - no token (400)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('post params');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('token');\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "operation",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anon login failure - expired token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Anon login failure - expired token (401)', function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - expired token (401)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('invalid token');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "operation",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Anon login failure - invalid token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const rsp = pm.response.json();\r",
+									"\r",
+									"pm.test('Anon login failure - Invalid token (400)', function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test('Detailed error message - Invalid token (400)', function () {\r",
+									"    pm.expect(rsp).to.have.property('details');\r",
+									"    pm.expect(rsp.details[1].toLowerCase()).to.include('token syntax');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "operation",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "xx",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/anon.php",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"anon.php"
 							]
 						}
 					},

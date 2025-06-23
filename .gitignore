@@ -7,3 +7,4 @@ newman/
 blob-report/
 playwright/.cache/
 k6/report/
+k6/tests/users.txt
